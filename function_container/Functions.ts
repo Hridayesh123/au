@@ -18,14 +18,11 @@ function login(req: Request, res: Response): void {
   };
   const { username, password } = user;
   const sql = 'SELECT * FROM users WHERE firstname = $1 AND password = $2';
-  console.log(sql);
+
   const values = [user.username, user.password];
 
   DbClient.query(sql, values, (err, result) => {
-    if (err) {
-      res.send("err.message");
-    }
-    else {
+    if (!err && result.rows.length!==0) {
       try {
         jwt.sign({ user }, key, (err, token) => {
           if (err) {
@@ -41,6 +38,9 @@ function login(req: Request, res: Response): void {
       catch (err) {
         console.log(err.message);
       }
+    }
+    else {
+     res.send("user not validated");
     }
   });
 }
@@ -58,10 +58,8 @@ function verifyToken(req: Request, res: Response, next: NextFunction): void {
       if (err) {
         return res.status(401).json({ message: 'Unauthorized' });
       } else {
-        res.json({
-          message: ' authorizedddd',
-        });
         next();
+        
       }
     });
 
@@ -75,10 +73,11 @@ function verifyToken(req: Request, res: Response, next: NextFunction): void {
 
 function getSubject(req: Request, res: Response): void {
   DbClient.query('SELECT * FROM subjects', (err, result) => {
-    if (!err) {
-      res.send(result.rows);
-    } else {
+    if (err) {
       console.log(err.message);
+      
+    } else {
+      res.send(result.rows);
     }
   });
 }
@@ -86,10 +85,11 @@ function getSubject(req: Request, res: Response): void {
 function getSubjectsById(req: Request, res: Response): void {
   const id = parseInt(req.params.id);
   DbClient.query(`SELECT * FROM subjects WHERE id=${id}`, (err, result) => {
-    if (!err) {
-      res.send(result.rows);
-    } else {
+    if (err) {
       console.log(err.message);
+      
+    } else {
+      res.send(result.rows);
     }
   });
 }
@@ -98,10 +98,11 @@ function createSubject(req: Request, res: Response): void {
   const name = req.body.name;
   const code = req.body.code;
   DbClient.query(`INSERT INTO subjects(name, code) VALUES($1, $2)`, [name, code], (err, result) => {
-    if (!err) {
-      res.send('successfully inserted');
-    } else {
+    if (err) {
       console.log(err.message);
+      
+    } else {
+      res.send('successfully inserted');
     }
   });
 }
@@ -111,10 +112,11 @@ function updateSubject(req: Request, res: Response): void {
   const name = req.body.name;
   const code = req.body.code;
   DbClient.query(`UPDATE subjects SET name = $1, code = $2 WHERE id = $3`, [name, code, id], (err, result) => {
-    if (!err) {
-      res.send('successfully updated');
-    } else {
+    if (err) {
       console.log(err.message);
+      
+    } else {
+      res.send('successfully updated');
     }
   });
 }
@@ -122,10 +124,11 @@ function updateSubject(req: Request, res: Response): void {
 function deleteSubject(req: Request, res: Response): void {
   const id = parseInt(req.params.id);
   DbClient.query(`DELETE FROM subjects WHERE id = $1`, [id], (err, result) => {
-    if (!err) {
-      res.send('successfully deleted');
-    } else {
+    if (err) {
       console.log(err.message);
+      
+    } else {
+      res.send('successfully deleted');
     }
   });
 }
@@ -133,3 +136,4 @@ function deleteSubject(req: Request, res: Response): void {
 
 export { getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject, login, verifyToken };
 export { AuthenticatedRequest };
+///jjjj

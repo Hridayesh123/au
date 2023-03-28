@@ -6,7 +6,7 @@ var router = express.Router();
 var key = "key";
 router.post('/login', Functions_1.login);
 router.post('/profile', Functions_1.verifyToken);
-router.get('/', Functions_1.verifyToken, Functions_1.getSubject);
+router.get('/getAll', Functions_1.verifyToken, Functions_1.getSubject);
 router.get('/:id', Functions_1.verifyToken, Functions_1.getSubjectsById);
 router.post('/', Functions_1.verifyToken, Functions_1.createSubject);
 router.put('/:id', Functions_1.verifyToken, Functions_1.updateSubject);

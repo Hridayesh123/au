@@ -13,7 +13,7 @@ router.post('/login', login);
 
 router.post('/profile', verifyToken);
 
-router.get('/', verifyToken, getSubject);
+router.get('/getAll', verifyToken, getSubject);
 
 router.get('/:id',verifyToken, getSubjectsById);
 

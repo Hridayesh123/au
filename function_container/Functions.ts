@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import DbClient from '../config/db_config';
 
 const key = "key";
@@ -17,50 +17,61 @@ function login(req: Request, res: Response): void {
     password: req.body.password,
   };
   const { username, password } = user;
-  DbClient.query(`SELECT * FROM users WHERE firstname = ${req.body.username} AND password = ${req.body.password}`, (err, result) =>{
-    if(err){
-      res.send(err.message);
+  const sql = 'SELECT * FROM users WHERE firstname = $1 AND password = $2';
+  console.log(sql);
+  const values = [user.username, user.password];
+
+  DbClient.query(sql, values, (err, result) => {
+    if (err) {
+      res.send("err.message");
     }
-    else{
-    jwt.sign({ user }, key, (err, token) => {
-      if (!err) {
-        res.json({
-          token,
+    else {
+      try {
+        jwt.sign({ user }, key, (err, token) => {
+          if (err) {
+            console.log(err.message);
+          } else {
+
+            res.json({
+              token,
+            });
+          }
         });
-      } else {
+      }
+      catch (err) {
         console.log(err.message);
       }
-    });
     }
   });
 }
-  
-  interface AuthenticatedRequest extends Request {
-      token?: string;
-    }
-  function verifyToken(req: Request, res: Response, next: NextFunction): void {
-    const bearerHeader = req.headers['authorization'];
-    if (typeof bearerHeader !== 'undefined') {
-      const bearer = bearerHeader.split(' ');
-      const token = bearer[1];
-      
-      jwt.verify(token, key, (err, authData) => {
-        if (err) {
-          return res.status(401).json({ message: 'Unauthorized' });
-        } else {
-            res.json({
-                message: ' authorized',
-               
-            });
-        }
+
+interface AuthenticatedRequest extends Request {
+  token?: string;
+}
+function verifyToken(req: Request, res: Response, next: NextFunction): void {
+  const bearerHeader = req.headers['authorization'];
+  if (typeof bearerHeader !== 'undefined') {
+    const bearer = bearerHeader.split(' ');
+    const token = bearer[1];
+
+    jwt.verify(token, key, (err, authData: any) => {
+      if (err) {
+        return res.status(401).json({ message: 'Unauthorized' });
+      } else {
+        res.json({
+          message: ' authorizedddd',
+        });
+        next();
+      }
     });
-      next();
-    } else {
-      res.send({
-        result: 'invalid token',
-      });
-    }
+
+  } else {
+    res.send({
+      result: 'invalid token',
+    });
   }
+}
+
 
 function getSubject(req: Request, res: Response): void {
   DbClient.query('SELECT * FROM subjects', (err, result) => {

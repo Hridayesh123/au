@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.login = exports.deleteSubject = exports.updateSubject = exports.createSubject = exports.getSubjectsById = exports.getSubject = void 0;
-var jsonwebtoken_1 = require("jsonwebtoken");
+var jwt = require("jsonwebtoken");
 var db_config_1 = require("../config/db_config");
 var key = "key";
 function login(req, res) {
@@ -10,21 +10,28 @@ function login(req, res) {
         password: req.body.password,
     };
     var username = user.username, password = user.password;
-    db_config_1.default.query("SELECT * FROM users WHERE firstname = ".concat(req.body.username, " AND password = ").concat(req.body.password), function (err, result) {
+    var sql = 'SELECT * FROM users WHERE firstname = $1 AND password = $2';
+    var values = [user.username, user.password];
+    db_config_1.default.query(sql, values, function (err, result) {
         if (err) {
-            res.send(err.message);
+            res.send("err.message");
         }
         else {
-            jsonwebtoken_1.default.sign({ user: user }, key, function (err, token) {
-                if (!err) {
-                    res.json({
-                        token: token,
-                    });
-                }
-                else {
-                    console.log(err.message);
-                }
-            });
+            try {
+                jwt.sign({ user: user }, key, function (err, token) {
+                    if (err) {
+                        console.log(err.message);
+                    }
+                    else {
+                        res.json({
+                            token: token,
+                        });
+                    }
+                });
+            }
+            catch (err) {
+                console.log(err.message);
+            }
         }
     });
 }
@@ -34,20 +41,17 @@ function verifyToken(req, res, next) {
     if (typeof bearerHeader !== 'undefined') {
         var bearer = bearerHeader.split(' ');
         var token = bearer[1];
-        jsonwebtoken_1.default.verify(token, key, function (err, authData) {
+        jwt.verify(token, key, function (err, authData) {
             if (err) {
-                res.send({
-                    result: 'token invalid',
-                });
+                return res.status(401).json({ message: 'Unauthorized' });
             }
             else {
                 res.json({
-                    message: ' authorized',
-                    authData: authData,
+                    message: ' authorizedddd',
                 });
+                next();
             }
         });
-        next();
     }
     else {
         res.send({

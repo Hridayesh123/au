@@ -2,7 +2,7 @@ import * as express from 'express';
 import { Request, Response } from 'express';
 import * as  client from '../config/db_config';
 import { login, verifyToken, getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject} from '../function_container/Functions';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { NextFunction } from 'connect';
 import { AuthenticatedRequest } from '../function_container/Functions';
 

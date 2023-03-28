@@ -2,7 +2,7 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import subjectRoutes from './routes_container/Routes';
 import { Server } from 'http';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 const app = express();
 const key = "key";

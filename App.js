@@ -4,7 +4,6 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var Routes_1 = require("./routes_container/Routes");
 var app = express();
-var key = "key";
 var port = 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

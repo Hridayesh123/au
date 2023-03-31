@@ -1,17 +1,17 @@
 import * as express from 'express';
 import { Request, Response } from 'express';
 import * as  client from '../config/db_config';
-import { login, verifyToken, getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject} from '../function_container/Functions';
+import { login, verifyToken, getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject, getProfile} from '../function_container/Functions';
 import * as jwt from 'jsonwebtoken';
 import { NextFunction } from 'connect';
 import { AuthenticatedRequest } from '../function_container/Functions';
 
 const router = express.Router();
-const key = "key";
+
 
 router.post('/login', login);
 
-router.post('/profile', verifyToken);
+router.post('/verify', verifyToken);
 
 router.get('/getAll', verifyToken, getSubject);
 

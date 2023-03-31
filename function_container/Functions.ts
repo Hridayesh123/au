@@ -1,28 +1,37 @@
-
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 import DbClient from '../config/db_config';
 
-const key = "key";
+const key ='';
+
 
 interface User {
-  username: string;
+  firstname: string;
   password: string;
+  key: string;
 }
 
 
 function login(req: Request, res: Response): void {
   const user: User = {
-    username: req.body.username,
+    firstname: req.body.firstname,
     password: req.body.password,
+    key: req.body.key,
   };
-  const { username, password } = user;
-  const sql = 'SELECT * FROM users WHERE firstname = $1 AND password = $2';
 
-  const values = [user.username, user.password];
-
+  const { firstname, password, key } = user;
+  const sql = 'SELECT * FROM users WHERE firstname = $1 AND password = $2 AND secret_key =$3';
+  
+  const values = [user.firstname, user.password, user.key];
+  
   DbClient.query(sql, values, (err, result) => {
+   
     if (!err && result.rows.length!==0) {
+      
+       const key = result.rows[0].secret_key;
+      
+      
+
       try {
         jwt.sign({ user }, key, (err, token) => {
           if (err) {
@@ -32,8 +41,10 @@ function login(req: Request, res: Response): void {
             res.json({
               token,
             });
+           
           }
         });
+        
       }
       catch (err) {
         console.log(err.message);
@@ -41,6 +52,7 @@ function login(req: Request, res: Response): void {
     }
     else {
      res.send("user not validated");
+     console.log(err.message);
     }
   });
 }
@@ -50,15 +62,41 @@ interface AuthenticatedRequest extends Request {
 }
 function verifyToken(req: Request, res: Response, next: NextFunction): void {
   const bearerHeader = req.headers['authorization'];
+  console.log(bearerHeader);
   if (typeof bearerHeader !== 'undefined') {
     const bearer = bearerHeader.split(' ');
     const token = bearer[1];
 
+    // const token_ins_query=`INSERT INTO login (token)
+    //             VALUES (${token})`;
+    
+    // DbClient.query(token_ins_query, (err,result) => {
+    //   if (err) {
+    //     res.status(401).json({ message: 'token not inserted', error: err });
+        
+    //   }
+    // })
+    
+     
     jwt.verify(token, key, (err, authData: any) => {
       if (err) {
+        console.log(err);
         return res.status(401).json({ message: 'Unauthorized' });
       } else {
-        next();
+        console.log(authData.user.firstname);
+        const sqll=`SELECT * FROM users where firstname=$1`;
+        const values = [authData.user.firstname];
+        DbClient.query(sqll,values, (err, result) =>{
+          if (err) {
+            res.status(401).json({ message: 'not verified', error: err });
+            
+          } else {
+            res.locals.user = result.rows[0];
+            next();
+            
+          }
+        });
+        
         
       }
     });
@@ -70,11 +108,19 @@ function verifyToken(req: Request, res: Response, next: NextFunction): void {
   }
 }
 
+function getProfile(req: Request, res: Response): void {
+  const user_id = res.locals.user.id;
+
+  // console.log('Profile: ', res.locals.user);
+  // res.end();
+}
 
 function getSubject(req: Request, res: Response): void {
+  
   DbClient.query('SELECT * FROM subjects', (err, result) => {
     if (err) {
       console.log(err.message);
+      res.send({error: err});
       
     } else {
       res.send(result.rows);
@@ -134,6 +180,6 @@ function deleteSubject(req: Request, res: Response): void {
 }
 
 
-export { getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject, login, verifyToken };
+export { getSubject, getSubjectsById, createSubject, updateSubject, deleteSubject, login, verifyToken, getProfile };
 export { AuthenticatedRequest };
 ///jjjj

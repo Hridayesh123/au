@@ -5,7 +5,7 @@ import { Server } from 'http';
 import * as jwt from 'jsonwebtoken';
 
 const app = express();
-const key = "key";
+
 const port = 3000;
 
 app.use(bodyParser.json());

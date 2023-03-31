@@ -1,16 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var express = require("express");
-var bodyParser = require("body-parser");
-var Routes_1 = require("./routes_container/Routes");
-var app = express();
-var key = "key";
-var port = 3000;
+const express = require("express");
+const bodyParser = require("body-parser");
+const Routes_1 = require("./routes_container/Routes");
+const app = express();
+const key = "key";
+const port = 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', Routes_1.default);
 app.use('/subject', Routes_1.default);
-var server = app.listen(port, function () {
-    console.log("Server is running on port ".concat(port));
+const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
 exports.default = server;
+//# sourceMappingURL=App.js.map

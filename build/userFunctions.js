@@ -46,7 +46,7 @@ function updateUser(req,res){
     lastname = '${req.body.lastname}',
     email = '${req.body.email}',
     password = '${req.body.password}',
-    datecreated = '${now}',
+   
     datemodified = '${now}'
     
     WHERE id = ${req.params.id}`, function(err, result){
